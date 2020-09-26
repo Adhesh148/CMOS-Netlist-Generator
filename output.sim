@@ -1,0 +1,16 @@
+| units: 100 tech: scmos format: MIT
+|type gate source drain length width
+|---- ---- ------ ----- ------ -----
+p a vdd not_a 2 4
+n a not_a gnd 2 4
+
+p b vdd not_b 2 4
+n b not_b gnd 2 4
+
+p not_a vdd out 2 4
+p not_b vdd pnode_3 2 4
+p c pnode_3 out 2 4
+
+n not_a out nnode_1 2 4
+n not_b nnode_1 gnd 2 4
+n c nnode_1 gnd 2 4
