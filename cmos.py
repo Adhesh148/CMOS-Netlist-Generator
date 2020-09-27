@@ -1,7 +1,11 @@
 import itertools
 
+# Welcome message
+print("Welcome to RTL Compiler - Boolean Expression to Transistor Netlist\n")
+print("Input Symbols : ~ (NOT), . (AND), + (OR)\n")
+
 # Accept the input string
-print("Enter the Boolean Expression")
+print("Enter Boolean Expression")
 expr = input().strip()
 
 SYMBOLS = ['(',')','+','.','~', ' ']
@@ -25,7 +29,7 @@ for index in range(len(expr)):
 if(substr_start < len(expr)):
 	tokens.append(expr[substr_start:len(expr)])
 
-print(tokens)
+# print(tokens)
 
 # Now let us convert the infix expression to postfix expression
 token_postfix = []
@@ -56,7 +60,7 @@ for item in tokens:
 while(len(stack)!=0):
 	token_postfix.append(stack.pop())
 
-print(token_postfix)
+# print(token_postfix)
 
 
 # Helper function - unpack the list of list to single list
@@ -94,7 +98,6 @@ def depth_operator(operator,pos):
 		pos = pos - 1;
 	return [depth_list,required_len]
 
-
 # Case - if last token is a '~', then ignore it in the process. if not add a '~' and consider that. Because CMOS is built for a complementary function.
 if(token_postfix[-1] == '~'):
 	token_postfix.pop()
@@ -112,8 +115,8 @@ for index in range(len(token_postfix)):
 		else:
 			affected_list = list(set(affected_list).union(set(depth_list_flattened)).difference(set(affected_list).intersection(set(depth_list_flattened))))
 
-print(token_postfix)
-print(affected_list)
+# print(token_postfix)
+# print(affected_list)
 
 # Eliminate the NOTs. That is invert the operators and operands affected overall by the NOTs.
 token_postfix_without_nots = []
@@ -130,7 +133,7 @@ for index in range(len(token_postfix)):
 	elif(token_postfix[index]!='~'):
 		token_postfix_without_nots.append(token_postfix[index])
 
-print(token_postfix_without_nots)
+# print(token_postfix_without_nots)
 REDUCED_SYMBOLS = ['+','.']
 # rename duplicates in token_postfix_without_nots
 rename_lst = []
@@ -155,7 +158,7 @@ for elem in token_postfix_without_nots:
 		n = n +1
 		pure_tokens.append(elem)
 
-print(pure_tokens)
+# print(pure_tokens)
 pmos_netlist = [[-1,-1,-1]]*n
 
 pmos_indx = 0
@@ -238,11 +241,6 @@ for item in pmos_netlist:
 	if(len(item_split) > 1 and item_split[1] == "dupl"):
 		item[1] = item_split[0]
 
-# Print PMOS Netlist
-print("PMOS Network is:")
-for item in pmos_netlist:
-	print(item)
-
 # Build NOT circuits if any in the PMOS ckt - same can be used in NMOS branch
 not_lst = []
 for item in pmos_netlist:
@@ -262,7 +260,9 @@ for item in pmos_netlist:
 		item[2] = "out"
 
 # Print PMOS Netlist
-print("PMOS Network is:")
+print("----------------------------------")
+print("[INTERMEDIATE OUTPUT]")
+print("\nPMOS Network:\n")
 for item in pmos_netlist:
 	print(item)
 
@@ -355,13 +355,17 @@ for item in nmos_netlist:
 		item[2] = "gnd"
 
 # Print NMOS Netlist
-print("NMOS Network is:")
+print("\nNMOS Network:\n")
 for item in nmos_netlist:
 	print(item)
+print("----------------------------------")
 
 # Write to file
-file = open("output.sim","w")
+print("Enter name of sim file to generate:")
+filename = input().strip()
+file = open(filename,"w")
 # First lets us write header
+file.write("| input boolean expression: "+expr+" \n")
 file.write("| units: 100 tech: scmos format: MIT\n|type gate source drain length width\n|---- ---- ------ ----- ------ -----\n")
 
 # Now let us write the NOTS if any.
@@ -388,4 +392,5 @@ for item in nmos_netlist:
 	file.write("n "+item[1]+" "+item[0]+" "+item[2]+" 2 4\n")
 
 # Close File
+print("[FILE IO] sim file successfully generated.")
 file.close()

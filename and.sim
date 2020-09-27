@@ -1,0 +1,15 @@
+| input boolean expression: a.b 
+| units: 100 tech: scmos format: MIT
+|type gate source drain length width
+|---- ---- ------ ----- ------ -----
+p a vdd not_a 2 4
+n a not_a gnd 2 4
+
+p b vdd not_b 2 4
+n b not_b gnd 2 4
+
+p not_a vdd pnode_1 2 4
+p not_b pnode_1 out 2 4
+
+n not_a out gnd 2 4
+n not_b out gnd 2 4

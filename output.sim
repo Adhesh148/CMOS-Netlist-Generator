@@ -1,3 +1,4 @@
+| input boolean expression: (a+b).(b+c).(c+a) 
 | units: 100 tech: scmos format: MIT
 |type gate source drain length width
 |---- ---- ------ ----- ------ -----
