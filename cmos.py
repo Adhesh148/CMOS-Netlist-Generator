@@ -135,11 +135,25 @@ for index in range(len(token_postfix)):
 	elif(token_postfix[index]!='~'):
 		token_postfix_without_nots.append(token_postfix[index])
 
+print(token_postfix_without_nots)
+REDUCED_SYMBOLS = ['+','.']
+# rename duplicates in token_postfix_without_nots
+rename_lst = []
+for i in range(len(token_postfix_without_nots)):
+	item = token_postfix_without_nots[i]
+	if item not in REDUCED_SYMBOLS:
+		if(item in token_postfix_without_nots[:i]) :
+			cnt = token_postfix_without_nots[:i].count(item)
+			if(cnt > 0):
+				rename_lst.append([i,cnt])
+
+for item in rename_lst:
+	token_postfix_without_nots[item[0]] = token_postfix_without_nots[item[0]] + "_dupl_"+str(item[1])
+
 # Now that we have a reduced set of expressions, let us build the PMOS and NMOS tree.
 # PMOS Tree
 
 # The number of transistors in the PMOS network = # of inputs. Let us build a N*3 matrix to store transistor information. First lets find n.
-REDUCED_SYMBOLS = ['+','.']
 n = 0
 pure_tokens = []
 for elem in token_postfix_without_nots:
@@ -162,7 +176,6 @@ def propagate_change(old_node,new_node,array):
 
 		if(array[index][2] == old_node):
 			array[index][2] = new_node
-
 
 # Do a postfix Eval - to get the info
 for item in token_postfix_without_nots:
@@ -227,6 +240,17 @@ for item in token_postfix_without_nots:
 		propagate_change(pmos_netlist[old_src][0],pmos_netlist[new_src][0],pmos_netlist);
 		propagate_change(pmos_netlist[old_drain][2],pmos_netlist[new_drain][2],pmos_netlist);
 		pst_stack.append(new_list)
+
+# Revert back the duplicates
+for item in pmos_netlist:
+	item_split = item[1].split("_")
+	if(len(item_split) > 1 and item_split[1] == "dupl"):
+		item[1] = item_split[0]
+
+# Print PMOS Netlist
+print("PMOS Network is:")
+for item in pmos_netlist:
+	print(item)
 
 # Build NOT circuits if any in the PMOS ckt - same can be used in NMOS branch
 not_lst = []
@@ -318,12 +342,18 @@ for item in token_postfix_without_nots:
 		propagate_change(nmos_netlist[old_drain][2],nmos_netlist[new_drain][2],nmos_netlist);
 		pst_stack.append(new_list)
 
+# Revert back the duplicates
+for item in nmos_netlist:
+	item_split = item[1].split("_")
+	if(len(item_split) > 1 and item_split[1] == "dupl"):
+		item[1] = item_split[0]
+
 # Elimiate Nots
 for item in nmos_netlist:
 	if(item[1][0] == "-"):
 		item[1] = "not_"+item[1][1:]
 
-# Find vdd and out in pmos netlist
+# Find vdd and out in nmos netlist
 src = [i[0] for i in nmos_netlist]
 drain = [i[2] for i in nmos_netlist]
 
@@ -334,11 +364,10 @@ for item in nmos_netlist:
 	if(item[2] not in src):
 		item[2] = "gnd"
 
-# Print PMOS Netlist
+# Print NMOS Netlist
 print("NMOS Network is:")
 for item in nmos_netlist:
 	print(item)
-
 
 # Write to file
 file = open("output.sim","w")
