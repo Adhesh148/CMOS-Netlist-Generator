@@ -32,7 +32,6 @@ token_postfix = []
 stack = []
 
 for item in tokens:
-
 	# Directly Pass an oparand.
 	if item not in SYMBOLS:
 		token_postfix.append(item)
@@ -70,7 +69,6 @@ def unpack_list(lst):
 			new_lst.append(lst[i])
 	return new_lst
 
-
 # NOT cannot be accomadated in a single PMOS or NMOS tree. So to reduce complexity, let us assume we are given NOT of all inputs and let us remove NOTS from the expression.
 # Let us build a function to find the depth of NOT. Recursively get the effect of an opertor on operands. List the pos of the operands affected by that operator. Recursive Sols
 REDUCED_SYMBOLS = ['+','.','~']
@@ -88,15 +86,12 @@ def depth_operator(operator,pos):
 		elif(token_postfix[pos] in REDUCED_SYMBOLS):
 			return_val = depth_operator(token_postfix[pos],pos-1)
 			required_len = required_len + return_val[1] - 1
-			# if(token_postfix[pos] == '~'):
-			# 	required_len = required_len - 1
 			depth_list.append(unpack_list(return_val[0]))
 
 		if(len(depth_list) == required_len):
 			break
 
 		pos = pos - 1;
-
 	return [depth_list,required_len]
 
 
@@ -152,7 +147,6 @@ for item in rename_lst:
 
 # Now that we have a reduced set of expressions, let us build the PMOS and NMOS tree.
 # PMOS Tree
-
 # The number of transistors in the PMOS network = # of inputs. Let us build a N*3 matrix to store transistor information. First lets find n.
 n = 0
 pure_tokens = []
@@ -169,7 +163,6 @@ pst_stack = []
 
 # ----Helper Function ------
 def propagate_change(old_node,new_node,array):
-	
 	for index in range(len(array)):
 		if(array[index][0] == old_node):
 			array[index][0] = new_node
@@ -210,9 +203,7 @@ for item in token_postfix_without_nots:
 		propagate_change(pmos_netlist[old_src][0],pmos_netlist[new_src][2],pmos_netlist);
 		pst_stack.append(new_list)
 
-
 	elif item == '.':
-
 		opnd_1 = pst_stack.pop()
 		opnd_2 = pst_stack.pop()
 		new_list = []
@@ -312,7 +303,6 @@ for item in token_postfix_without_nots:
 		propagate_change(nmos_netlist[old_src][0],nmos_netlist[new_src][2],nmos_netlist);
 		pst_stack.append(new_list)
 
-
 	elif item == '+':
 		opnd_1 = pst_stack.pop()
 		opnd_2 = pst_stack.pop()
@@ -342,7 +332,7 @@ for item in token_postfix_without_nots:
 		propagate_change(nmos_netlist[old_drain][2],nmos_netlist[new_drain][2],nmos_netlist);
 		pst_stack.append(new_list)
 
-# Revert back the duplicates
+# Revert back the duplicates to original
 for item in nmos_netlist:
 	item_split = item[1].split("_")
 	if(len(item_split) > 1 and item_split[1] == "dupl"):
@@ -375,6 +365,7 @@ file = open("output.sim","w")
 file.write("| units: 100 tech: scmos format: MIT\n|type gate source drain length width\n|---- ---- ------ ----- ------ -----\n")
 
 # Now let us write the NOTS if any.
+not_lst = list(dict.fromkeys(not_lst))
 for item in not_lst:
 	file.write("p "+item+" vdd not_"+item+" 2 4\n")
 	file.write("n "+item+" not_"+item+" gnd 2 4\n\n")

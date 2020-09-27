@@ -7,8 +7,19 @@ n a not_a gnd 2 4
 p b vdd not_b 2 4
 n b not_b gnd 2 4
 
-p not_a vdd pnode_1 2 4
-p not_b pnode_1 out 2 4
+p c vdd not_c 2 4
+n c not_c gnd 2 4
 
-n not_a out gnd 2 4
-n not_b out gnd 2 4
+p not_a vdd pnode_1 2 4
+p not_b vdd pnode_1 2 4
+p not_b pnode_1 pnode_5 2 4
+p not_c pnode_1 pnode_5 2 4
+p not_c pnode_5 out 2 4
+p not_a pnode_5 out 2 4
+
+n not_a out nnode_1 2 4
+n not_b nnode_1 gnd 2 4
+n not_b out nnode_5 2 4
+n not_c nnode_5 gnd 2 4
+n not_c out nnode_9 2 4
+n not_a nnode_9 gnd 2 4
